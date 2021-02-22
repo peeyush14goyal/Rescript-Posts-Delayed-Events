@@ -152,11 +152,14 @@ let createPost = (x, index) => {
    </div>`
 }
 
-let values = Belt.Array.mapWithIndex(posts, (index, x) => createPost(x, index))
-let _ = document["body"]["insertAdjacentHTML"]("beforeend", values)
+let initialize = () => {
+  Js.log("Working")
+  let values = Belt.Array.mapWithIndex(posts, (index, x) => createPost(x, index))
+  let _ = document["body"]["insertAdjacentHTML"]("beforeend", values)
 
-Belt.Array.forEachWithIndex(posts, (i, _) => {
-  let i_str = Belt.Int.toString(i)
-  let btn = document["getElementById"](`block-delete-${i_str}`)
-  btn["addEventListener"]("click", removeChild)
-})
+  Belt.Array.forEachWithIndex(posts, (i, _) => {
+    let i_str = Belt.Int.toString(i)
+    let btn = document["getElementById"](`block-delete-${i_str}`)
+    btn["addEventListener"]("click", removeChild)
+  })
+}
