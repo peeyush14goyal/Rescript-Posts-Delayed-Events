@@ -54,20 +54,12 @@ let getIndexFromId = (node) => {
   Js.String.sliceToEnd(~from=id_len-1, id)
 }
 
-let valueFromOption = (value) => {
-  switch value {
-  | Some(x) => x
-  | None => -1
-  }
-}
 
 let deleteDiv = (id) => {
-  let id_int = valueFromOption(Belt.Int.fromString(id))
-
-  if id_int >= 0 {
-    `<div id="delete-block-${id}" class="post-deleted pt-1">
+  switch Belt.Int.fromString(id) {
+    | Some(x) => `<div id="delete-block-${id}" class="post-deleted pt-1">
       <p class="text-center">
-        This post from <em>${posts[((id_int))]->Post.title} by ${posts[((id_int))]->Post.author}</em> will be
+        This post from <em>${posts[((x))]->Post.title} by ${posts[((x))]->Post.author}</em> will be
         permanently removed in 10 seconds.
       </p>
       <div class="flex-center">
@@ -80,10 +72,10 @@ let deleteDiv = (id) => {
       </div>
       <div class="post-deleted-progress"></div>
     </div>`
+
+    | None => `<div></div>`
   }
-  else {
-    `<div></div>`
-  }
+
 }
 
 let restorePost = (e, id) => {

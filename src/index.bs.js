@@ -63,19 +63,10 @@ function getIndexFromId(node) {
   return id.slice(id_len - 1 | 0);
 }
 
-function valueFromOption(value) {
-  if (value !== undefined) {
-    return value;
-  } else {
-    return -1;
-  }
-}
-
 function deleteDiv(id) {
-  var value = Belt_Int.fromString(id);
-  var id_int = value !== undefined ? value : -1;
-  if (id_int >= 0) {
-    return "<div id=\"delete-block-" + id + "\" class=\"post-deleted pt-1\">\n      <p class=\"text-center\">\n        This post from <em>" + Caml_array.get(posts, id_int).title + " by " + Caml_array.get(posts, id_int).author + "</em> will be\n        permanently removed in 10 seconds.\n      </p>\n      <div class=\"flex-center\">\n        <button id=\"block-restore-" + id + "\" class=\"button button-warning mr-1\">\n          Restore\n        </button>\n        <button id=\"block-delete-immediate-" + id + "\" class=\"button button-danger\">\n          Delete Immediately\n        </button>\n      </div>\n      <div class=\"post-deleted-progress\"></div>\n    </div>";
+  var x = Belt_Int.fromString(id);
+  if (x !== undefined) {
+    return "<div id=\"delete-block-" + id + "\" class=\"post-deleted pt-1\">\n      <p class=\"text-center\">\n        This post from <em>" + Caml_array.get(posts, x).title + " by " + Caml_array.get(posts, x).author + "</em> will be\n        permanently removed in 10 seconds.\n      </p>\n      <div class=\"flex-center\">\n        <button id=\"block-restore-" + id + "\" class=\"button button-warning mr-1\">\n          Restore\n        </button>\n        <button id=\"block-delete-immediate-" + id + "\" class=\"button button-danger\">\n          Delete Immediately\n        </button>\n      </div>\n      <div class=\"post-deleted-progress\"></div>\n    </div>";
   } else {
     return "<div></div>";
   }
@@ -151,7 +142,6 @@ export {
   Post ,
   posts ,
   getIndexFromId ,
-  valueFromOption ,
   deleteDiv ,
   restorePost ,
   deletePost ,
