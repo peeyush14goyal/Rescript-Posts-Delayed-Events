@@ -1,21 +1,8 @@
 @val external document: {..} = "document"
 @val external window: {..} = "window"
 
-module Post = {
-  type t = {
-    title: string,
-    author: string,
-    text: array<string>,
-  }
-
-  let make = (~title, ~author, ~text) => {title: title, author: author, text: text}
-  let title = t => t.title
-  let author = t => t.author
-  let text = t => t.text
-}
-
 let posts = [
-  Post.make(
+  PostMod.Post.make(
     ~title="The Razor's Edge",
     ~author="W. Somerset Maugham",
     ~text=[
@@ -26,7 +13,7 @@ let posts = [
     evil exists. I want to know whether I have an immortal soul or whether when I die it's the end.\"",
     ],
   ),
-  Post.make(
+  PostMod.Post.make(
     ~title="Ship of Destiny",
     ~author="Robin Hobb",
     ~text=[
@@ -39,7 +26,7 @@ let posts = [
         self-examination that they never truly experienced life?",
     ],
   ),
-  Post.make(
+  PostMod.Post.make(
     ~title="A Guide for the Perplexed: Conversations with Paul Cronin",
     ~author="Werner Herzog",
     ~text=[
@@ -48,107 +35,12 @@ let posts = [
   ),
 ]
 
-let getIndexFromId = (node) => {
-  let id = node["id"]
-  let id_len = Js.String.length(id)
-  Js.String.sliceToEnd(~from=id_len-1, id)
-}
 
-
-let deleteDiv = (id) => {
-  switch Belt.Int.fromString(id) {
-    | Some(x) => `<div id="delete-block-${id}" class="post-deleted pt-1">
-      <p class="text-center">
-        This post from <em>${posts[((x))]->Post.title} by ${posts[((x))]->Post.author}</em> will be
-        permanently removed in 10 seconds.
-      </p>
-      <div class="flex-center">
-        <button id="block-restore-${id}" class="button button-warning mr-1">
-          Restore
-        </button>
-        <button id="block-delete-immediate-${id}" class="button button-danger">
-          Delete Immediately
-        </button>
-      </div>
-      <div class="post-deleted-progress"></div>
-    </div>`
-
-    | None => `<div></div>`
-  }
-
-}
-
-let restorePost = (e, id) => {
-  let _ = window["clearTimeout"](id)
-
-  let id_val = getIndexFromId(e["currentTarget"])
-  let blk = document["getElementById"](`block-${id_val}`)
-  blk["style"]["display"] = "block"
-
-  let delBlk = document["getElementById"](`delete-block-${id_val}`)
-  document["body"]["removeChild"](delBlk)
-}
-
-let deletePost = (e, id) => {
-  let _ = window["clearTimeout"](id)
-
-  let id_val = getIndexFromId(e["currentTarget"])
-  let blk = document["getElementById"](`block-${id_val}`)
-  document["body"]["removeChild"](blk) -> ignore
-
-  let delBlk = document["getElementById"](`delete-block-${id_val}`)
-  document["body"]["removeChild"](delBlk)
-}
-
-let autoDelete = (id_val) => {
-  let blk = document["getElementById"](`block-${id_val}`)
-  let _ = document["body"]["removeChild"](blk)
-
-  let delBlk = document["getElementById"](`delete-block-${id_val}`)
-  document["body"]["removeChild"](delBlk)
-}
-
-let removeChild = (e) => {
-  let id_val = getIndexFromId(e["currentTarget"])
-  let blk = document["getElementById"](`block-${id_val}`)
-  let _ = blk["insertAdjacentHTML"]("afterend", deleteDiv(id_val))
-
-  let restoreBlk = document["getElementById"](`block-restore-${id_val}`)
-  let delBlk = document["getElementById"](`block-delete-immediate-${id_val}`)
-  blk["style"]["display"] = "none"
-
-  let timer_id = window["setTimeout"](() => autoDelete(id_val), 10000)
-  let _ = delBlk["addEventListener"]("click",(e) => deletePost(e, timer_id))
-  let _ = restoreBlk["addEventListener"]("click",(e) => restorePost(e, timer_id))
-}
-
-let getPara = (text) => {
-  `<p class="post-text">${text}</p>`
-}
-
-let getDescription = (arr) => {
-  let postText = Belt.Array.map(arr, x => getPara(x))
-  Js.Array.joinWith("\n", postText)
-}
-
-let createPost = (x, index) => {
+Belt.Array.forEachWithIndex(posts, (index, x) => {
+  let post = Create.createPost(x, index)
+  document["body"]["insertAdjacentHTML"]("beforeend", post) -> ignore
   let i = Belt.Int.toString(index)
-
-  `<div id="block-${i}" class="post">
-      <h2 class="post-heading">${x->Post.title}</h2>
-      <h3>${x->Post.author}</h3>
-      ${getDescription(x->Post.text)}
-      <button id="block-delete-${i}" class="button button-danger">
-        Remove this post
-      </button>
-   </div>`
-}
-
-  Belt.Array.forEachWithIndex(posts, (index, x) => {
-   let post = createPost(x, index)
-   document["body"]["insertAdjacentHTML"]("beforeend", post) -> ignore
-   let i = Belt.Int.toString(index)
-   let btn = document["getElementById"](`block-delete-${i}`)
-    btn["addEventListener"]("click", removeChild)
+  let btn = document["getElementById"](`block-delete-${i}`)
+    btn["addEventListener"]("click",() => Remove.removeChild(posts, i))
   }
-  )
+)
