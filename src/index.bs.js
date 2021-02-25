@@ -139,18 +139,13 @@ function createPost(x, index) {
   return "<div id=\"block-" + i + "\" class=\"post\">\n      <h2 class=\"post-heading\">" + x.title + "</h2>\n      <h3>" + x.author + "</h3>\n      " + getDescription(x.text) + "\n      <button id=\"block-delete-" + i + "\" class=\"button button-danger\">\n        Remove this post\n      </button>\n   </div>";
 }
 
-function initialize(param) {
-  console.log("Working");
-  var values = Belt_Array.mapWithIndex(posts, (function (index, x) {
-          return createPost(x, index);
-        }));
-  document.body.insertAdjacentHTML("beforeend", values);
-  return Belt_Array.forEachWithIndex(posts, (function (i, param) {
-                var i_str = String(i);
-                var btn = document.getElementById("block-delete-" + i_str);
-                return btn.addEventListener("click", removeChild);
-              }));
-}
+Belt_Array.forEachWithIndex(posts, (function (index, x) {
+        var post = createPost(x, index);
+        document.body.insertAdjacentHTML("beforeend", post);
+        var i = String(index);
+        var btn = document.getElementById("block-delete-" + i);
+        return btn.addEventListener("click", removeChild);
+      }));
 
 export {
   Post ,
@@ -165,7 +160,6 @@ export {
   getPara ,
   getDescription ,
   createPost ,
-  initialize ,
   
 }
-/* No side effect */
+/*  Not a pure module */

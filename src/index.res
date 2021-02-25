@@ -102,7 +102,7 @@ let deletePost = (e, id) => {
 
   let id_val = getIndexFromId(e["currentTarget"])
   let blk = document["getElementById"](`block-${id_val}`)
-  let _ = document["body"]["removeChild"](blk)
+  document["body"]["removeChild"](blk) -> ignore
 
   let delBlk = document["getElementById"](`delete-block-${id_val}`)
   document["body"]["removeChild"](delBlk)
@@ -152,14 +152,11 @@ let createPost = (x, index) => {
    </div>`
 }
 
-let initialize = () => {
-  Js.log("Working")
-  let values = Belt.Array.mapWithIndex(posts, (index, x) => createPost(x, index))
-  let _ = document["body"]["insertAdjacentHTML"]("beforeend", values)
-
-  Belt.Array.forEachWithIndex(posts, (i, _) => {
-    let i_str = Belt.Int.toString(i)
-    let btn = document["getElementById"](`block-delete-${i_str}`)
+  Belt.Array.forEachWithIndex(posts, (index, x) => {
+   let post = createPost(x, index)
+   document["body"]["insertAdjacentHTML"]("beforeend", post) -> ignore
+   let i = Belt.Int.toString(index)
+   let btn = document["getElementById"](`block-delete-${i}`)
     btn["addEventListener"]("click", removeChild)
-  })
-}
+  }
+  )
