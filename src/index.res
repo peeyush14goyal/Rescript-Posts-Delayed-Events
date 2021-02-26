@@ -1,8 +1,21 @@
 @val external document: {..} = "document"
 @val external window: {..} = "window"
 
+module Post = {
+  type t = {
+    title: string,
+    author: string,
+    text: array<string>,
+  }
+
+  let make = (~title, ~author, ~text) => {title: title, author: author, text: text}
+  let title = t => t.title
+  let author = t => t.author
+  let text = t => t.text
+}
+
 let posts = [
-  PostMod.Post.make(
+  Post.make(
     ~title="The Razor's Edge",
     ~author="W. Somerset Maugham",
     ~text=[
@@ -13,7 +26,7 @@ let posts = [
     evil exists. I want to know whether I have an immortal soul or whether when I die it's the end.\"",
     ],
   ),
-  PostMod.Post.make(
+  Post.make(
     ~title="Ship of Destiny",
     ~author="Robin Hobb",
     ~text=[
@@ -26,7 +39,7 @@ let posts = [
         self-examination that they never truly experienced life?",
     ],
   ),
-  PostMod.Post.make(
+  Post.make(
     ~title="A Guide for the Perplexed: Conversations with Paul Cronin",
     ~author="Werner Herzog",
     ~text=[
@@ -35,12 +48,96 @@ let posts = [
   ),
 ]
 
+let getPostText = (text) => {
+  `<p class="post-text">${text}</p>`
+}
+
+let getPostDescription = (arr) => {
+  let postText = Belt.Array.map(arr, x => getPostText(x))
+  Js.Array.joinWith("\n", postText)
+}
+
+let createPost = (index, x) => {
+  let i = Belt.Int.toString(index)
+  `<h2 class="post-heading">${x->Post.title}</h2>
+    <h3>${x->Post.author}</h3>
+    ${getPostDescription(x->Post.text)}
+    <button id="block-delete-${i}" class="button button-danger">
+      Remove this post
+    </button>`
+}
+
+
+let deletePost = (post, delBlk, timer_id) => {
+  window["clearTimeout"](timer_id) -> ignore
+  document["body"]["removeChild"](post) -> ignore
+  document["body"]["removeChild"](delBlk)
+}
+
+let autoDelete = (post, delBlk) => {
+  document["body"]["removeChild"](post) -> ignore
+  document["body"]["removeChild"](delBlk)
+}
+
+let restorePost = (post, delBlk, timer_id) => {
+  window["clearTimeout"](timer_id) -> ignore
+  post["style"]["display"] = "block"
+  document["body"]["removeChild"](delBlk)
+}
+
+let deleteDiv = (id) => {
+  let parentDiv = document["createElement"]("div")
+  parentDiv["id"] = `delete-block-${id}`
+
+  parentDiv["innerHTML"] = switch Belt.Int.fromString(id) {
+    | Some(x) => {
+      `<div class="post-deleted pt-1">
+      <p class="text-center">
+        This post from <em>${posts[((x))]->Post.title} by ${posts[((x))]->Post.author}</em> will be
+        permanently removed in 10 seconds.
+      </p>
+      <div class="flex-center">
+        <button id="block-restore-${id}" class="button button-warning mr-1">
+          Restore
+        </button>
+        <button id="block-delete-immediate-${id}" class="button button-danger">
+          Delete Immediately
+        </button>
+      </div>
+      <div class="post-deleted-progress"></div>
+    </div>`
+    }
+
+    | None => ``
+  }
+  parentDiv
+}
+
+
+let removeChild = (post, id) => {
+  let deleteBlk = deleteDiv(id)
+  document["body"]["insertBefore"](deleteBlk, post) -> ignore
+
+  let restoreBtn = document["getElementById"](`block-restore-${id}`)
+  let delBtn = document["getElementById"](`block-delete-immediate-${id}`)
+  post["style"]["display"] = "none"
+
+  let timer_id = window["setTimeout"](() => autoDelete(post, deleteBlk), 10000)
+  delBtn["addEventListener"]("click",() => deletePost(post, deleteBlk, timer_id)) -> ignore
+  restoreBtn["addEventListener"]("click",() => restorePost(post, deleteBlk, timer_id))
+}
 
 Belt.Array.forEachWithIndex(posts, (index, x) => {
-  let post = Create.createPost(x, index)
-  document["body"]["insertAdjacentHTML"]("beforeend", post) -> ignore
+
   let i = Belt.Int.toString(index)
-  let btn = document["getElementById"](`block-delete-${i}`)
-    btn["addEventListener"]("click",() => Remove.removeChild(posts, i))
+  let post = document["createElement"]("div")
+  post["id"] = `block-${i}`
+  post["className"] = "post"
+  post["innerHTML"] = createPost(index, x)
+
+  document["body"]["insertBefore"](post, None) -> ignore
+
+  let removeBtn = document["getElementById"](`block-delete-${i}`)
+    removeBtn["addEventListener"]("click",() => removeChild(post, i))
   }
 )
