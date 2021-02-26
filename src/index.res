@@ -85,15 +85,14 @@ let restorePost = (post, delBlk, timer_id) => {
   document["body"]["removeChild"](delBlk)
 }
 
-let deleteDiv = (id) => {
+let deleteDiv = (post, id) => {
   let parentDiv = document["createElement"]("div")
   parentDiv["id"] = `delete-block-${id}`
 
-  parentDiv["innerHTML"] = switch Belt.Int.fromString(id) {
-    | Some(x) => {
+  parentDiv["innerHTML"] =
       `<div class="post-deleted pt-1">
       <p class="text-center">
-        This post from <em>${posts[((x))]->Post.title} by ${posts[((x))]->Post.author}</em> will be
+        This post from <em>${post["children"][0]["innerText"]} by ${post["children"][1]["innerText"]}</em> will be
         permanently removed in 10 seconds.
       </p>
       <div class="flex-center">
@@ -106,16 +105,12 @@ let deleteDiv = (id) => {
       </div>
       <div class="post-deleted-progress"></div>
     </div>`
-    }
-
-    | None => ``
-  }
   parentDiv
 }
 
 
 let removeChild = (post, id) => {
-  let deleteBlk = deleteDiv(id)
+  let deleteBlk = deleteDiv(post, id)
   document["body"]["insertBefore"](deleteBlk, post) -> ignore
 
   let restoreBtn = document["getElementById"](`block-restore-${id}`)
