@@ -1,0 +1,13 @@
+rescript = 1
+rule astj
+  command = /home/peeyush/rescript-dom-delayed-remove-tut/node_modules/bs-platform/linux/bsc.exe  -warn-error +101 -bs-v 8.4.2 -bs-jsx 3  -absname -bs-ast -o $out $i
+o src/index.ast : astj ../../src/index.res
+rule deps
+  command = /home/peeyush/rescript-dom-delayed-remove-tut/node_modules/bs-platform/linux/bsb_helper.exe -hash 335de725de22c69ec0ace68e4e4bb8ec $in
+  restat = 1
+o src/index.d : deps src/index.ast
+rule mij
+  command = /home/peeyush/rescript-dom-delayed-remove-tut/node_modules/bs-platform/linux/bsc.exe -I src   -warn-error +101 -bs-package-name learn-rescript -bs-package-output es6:$in_d:.bs.js $i
+  dyndep = 1
+  restat = 1
+o src/index.cmj src/index.cmi ../../src/index.bs.js : mij src/index.ast
