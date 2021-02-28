@@ -5,10 +5,10 @@ import * as Caml_array from "bs-platform/lib/es6/caml_array.js";
 
 function make(title, author, text) {
   return {
-          title: title,
-          author: author,
-          text: text
-        };
+    title: title,
+    author: author,
+    text: text,
+  };
 }
 
 function title(t) {
@@ -27,7 +27,7 @@ var Post = {
   make: make,
   title: title,
   author: author,
-  text: text
+  text: text,
 };
 
 var posts = [
@@ -36,28 +36,30 @@ var posts = [
     author: "W. Somerset Maugham",
     text: [
       "\"I couldn't go back now. I'm on the threshold. I see vast lands of the spirit stretching out before me,\n    beckoning, and I'm eager to travel them.\"",
-      "\"What do you expect to find in them?\"",
-      "\"The answers to my questions. I want to make up my mind whether God is or God is not. I want to find out why\n    evil exists. I want to know whether I have an immortal soul or whether when I die it's the end.\""
-    ]
+      '"What do you expect to find in them?"',
+      '"The answers to my questions. I want to make up my mind whether God is or God is not. I want to find out why\n    evil exists. I want to know whether I have an immortal soul or whether when I die it\'s the end."',
+    ],
   },
   {
     title: "Ship of Destiny",
     author: "Robin Hobb",
     text: [
       "He suddenly recalled a callow boy telling his tutor that he dreaded the sea voyage home, because he would have\n        to be among common men rather than thoughtful acolytes like himself. What had he said to Berandol?",
-      "\"Good enough men, but not like us.\"",
-      "Then, he had despised the sort of life where simply getting from day to day prevented a man from ever taking\n        stock of himself. Berandol had hinted to him then that a time out in the world might change his image of folk\n        who labored every day for their bread. Had it? Or had it changed his image of acolytes who spent so much time in\n        self-examination that they never truly experienced life?"
-    ]
+      '"Good enough men, but not like us."',
+      "Then, he had despised the sort of life where simply getting from day to day prevented a man from ever taking\n        stock of himself. Berandol had hinted to him then that a time out in the world might change his image of folk\n        who labored every day for their bread. Had it? Or had it changed his image of acolytes who spent so much time in\n        self-examination that they never truly experienced life?",
+    ],
   },
   {
     title: "A Guide for the Perplexed: Conversations with Paul Cronin",
     author: "Werner Herzog",
-    text: ["Our culture today, especially television, infantilises us. The indignity of it kills our imagination. May I propose a Herzog dictum? Those who read own the world. Those who watch television lose it. Sitting at home on your own, in front of the screen, is a very different experience from being in the communal spaces of the world, those centres of collective dreaming. Television creates loneliness. This is why sitcoms have added laughter tracks which try to cheat you out of your solitude. Television is a reflection of the world in which we live, designed to appeal to the lowest common denominator. It kills spontaneous imagination and destroys our ability to entertain ourselves, painfully erasing our patience and sensitivity to significant detail."]
-  }
+    text: [
+      "Our culture today, especially television, infantilises us. The indignity of it kills our imagination. May I propose a Herzog dictum? Those who read own the world. Those who watch television lose it. Sitting at home on your own, in front of the screen, is a very different experience from being in the communal spaces of the world, those centres of collective dreaming. Television creates loneliness. This is why sitcoms have added laughter tracks which try to cheat you out of your solitude. Television is a reflection of the world in which we live, designed to appeal to the lowest common denominator. It kills spontaneous imagination and destroys our ability to entertain ourselves, painfully erasing our patience and sensitivity to significant detail.",
+    ],
+  },
 ];
 
 function getPostText(text) {
-  return "<p class=\"post-text\">" + text + "</p>";
+  return '<p class="post-text">' + text + "</p>";
 }
 
 function getPostDescription(arr) {
@@ -67,7 +69,17 @@ function getPostDescription(arr) {
 
 function createPost(index, x) {
   var i = String(index);
-  return "<h2 class=\"post-heading\">" + x.title + "</h2>\n    <h3>" + x.author + "</h3>\n    " + getPostDescription(x.text) + "\n    <button id=\"block-delete-" + i + "\" class=\"button button-danger\">\n      Remove this post\n    </button>";
+  return (
+    '<h2 class="post-heading">' +
+    x.title +
+    "</h2>\n    <h3>" +
+    x.author +
+    "</h3>\n    " +
+    getPostDescription(x.text) +
+    '\n    <button id="block-delete-' +
+    i +
+    '" class="button button-danger">\n      Remove this post\n    </button>'
+  );
 }
 
 function deletePost(post, delBlk, timer_id) {
@@ -90,7 +102,16 @@ function restorePost(post, delBlk, timer_id) {
 function deleteDiv(post, id) {
   var parentDiv = document.createElement("div");
   parentDiv.id = "delete-block-" + id;
-  parentDiv.innerHTML = "<div class=\"post-deleted pt-1\">\n      <p class=\"text-center\">\n        This post from <em>" + Caml_array.get(post.children, 0).innerText + " by " + Caml_array.get(post.children, 1).innerText + "</em> will be\n        permanently removed in 10 seconds.\n      </p>\n      <div class=\"flex-center\">\n        <button id=\"block-restore-" + id + "\" class=\"button button-warning mr-1\">\n          Restore\n        </button>\n        <button id=\"block-delete-immediate-" + id + "\" class=\"button button-danger\">\n          Delete Immediately\n        </button>\n      </div>\n      <div class=\"post-deleted-progress\"></div>\n    </div>";
+  parentDiv.innerHTML =
+    '<div class="post-deleted pt-1">\n      <p class="text-center">\n        This post from <em>' +
+    Caml_array.get(post.children, 0).innerText +
+    " by " +
+    Caml_array.get(post.children, 1).innerText +
+    '</em> will be\n        permanently removed in 10 seconds.\n      </p>\n      <div class="flex-center">\n        <button id="block-restore-' +
+    id +
+    '" class="button button-warning mr-1">\n          Restore\n        </button>\n        <button id="block-delete-immediate-' +
+    id +
+    '" class="button button-danger">\n          Delete Immediately\n        </button>\n      </div>\n      <div class="post-deleted-progress"></div>\n    </div>';
   return parentDiv;
 }
 
@@ -100,41 +121,40 @@ function removeChild(post, id) {
   var restoreBtn = document.getElementById("block-restore-" + id);
   var delBtn = document.getElementById("block-delete-immediate-" + id);
   post.style.display = "none";
-  var timer_id = window.setTimeout((function (param) {
-          return autoDelete(post, deleteBlk);
-        }), 10000);
-  delBtn.addEventListener("click", (function (param) {
-          return deletePost(post, deleteBlk, timer_id);
-        }));
-  return restoreBtn.addEventListener("click", (function (param) {
-                return restorePost(post, deleteBlk, timer_id);
-              }));
+  var timer_id = window.setTimeout(function (param) {
+    return autoDelete(post, deleteBlk);
+  }, 10000);
+  delBtn.addEventListener("click", function (param) {
+    return deletePost(post, deleteBlk, timer_id);
+  });
+  return restoreBtn.addEventListener("click", function (param) {
+    return restorePost(post, deleteBlk, timer_id);
+  });
 }
 
-Belt_Array.forEachWithIndex(posts, (function (index, x) {
-        var i = String(index);
-        var post = document.createElement("div");
-        post.id = "block-" + i;
-        post.className = "post";
-        post.innerHTML = createPost(index, x);
-        document.body.insertBefore(post, undefined);
-        var removeBtn = document.getElementById("block-delete-" + i);
-        return removeBtn.addEventListener("click", (function (param) {
-                      return removeChild(post, i);
-                    }));
-      }));
+Belt_Array.forEachWithIndex(posts, function (index, x) {
+  var i = String(index);
+  var post = document.createElement("div");
+  post.id = "block-" + i;
+  post.className = "post";
+  post.innerHTML = createPost(index, x);
+  document.body.insertBefore(post, undefined);
+  var removeBtn = document.getElementById("block-delete-" + i);
+  return removeBtn.addEventListener("click", function (param) {
+    return removeChild(post, i);
+  });
+});
 
 export {
-  Post ,
-  posts ,
-  getPostText ,
-  getPostDescription ,
-  createPost ,
-  deletePost ,
-  autoDelete ,
-  restorePost ,
-  deleteDiv ,
-  removeChild ,
-  
-}
+  Post,
+  posts,
+  getPostText,
+  getPostDescription,
+  createPost,
+  deletePost,
+  autoDelete,
+  restorePost,
+  deleteDiv,
+  removeChild,
+};
 /*  Not a pure module */
